@@ -9,7 +9,7 @@ from object_detector import ObjectDetector
 from text_to_speech import TextToSpeech
 from config import (
     PROCESS_EVERY_N_FRAMES, SHOW_FPS, FPS_UPDATE_INTERVAL,
-    DISTANCE_THRESHOLD_CM, DEBUG_MODE,ONNX_MODEL_PATH
+    DISTANCE_THRESHOLD_CM, DEBUG_MODE, ONNX_MODEL_PATH, SHOW_BBOXES
 )
 
 
@@ -82,22 +82,32 @@ class IuSeeApp:
                 frame = self.object_detector.read_frame()
                 if frame is None:
                     time.sleep(0.001)  
-                    print("Frame kosong, melewati...")
+                    print("Melewati deteksi frame")
                     continue
                 time.sleep(0.001)
                 self.frame_count += 1
                 self._calculate_and_display_fps()
-                cv2.imshow("IuSee Preview", frame)
-                if not self._should_process_frame():
-                    continue
-                detected_labels = self.object_detector.detect_objects(frame)
-                self._handle_detections(detected_labels)
+
+                if self._should_process_frame():
+                    if SHOW_BBOXES:
+                        detected_labels, bounding_boxes = self.object_detector.detect_objects_optimized(frame, need_bboxes=SHOW_BBOXES)
+                        self._handle_detections(detected_labels)
+                        frame_with_boxes = self.object_detector.draw_bounding_boxes(frame, bounding_boxes)
+                        cv2.imshow("IuSee Preview", frame_with_boxes)
+                    else:
+                        detected_labels = self.object_detector.detect_objects_labels_only(frame)
+                        self._handle_detections(detected_labels)
                 
+                # Check for 'q' key press to exit
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+                    
         except KeyboardInterrupt:
             print("\nDihentikan oleh user.")
         
         finally:
             self.object_detector.stop_capture()
+            cv2.destroyAllWindows()
             self.distance_sensor.cleanup()
             total_time = time.time() - start_time
             print("Program selesai.")

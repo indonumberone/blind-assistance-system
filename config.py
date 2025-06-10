@@ -29,3 +29,6 @@ ESPEAK_SPEED = "150"
 # Display Configuration
 SHOW_FPS = True
 FPS_UPDATE_INTERVAL = 1.0  # seconds
+
+# Show Bounding Boxes
+SHOW_BBOXES = False 
