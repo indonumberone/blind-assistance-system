@@ -1,5 +1,5 @@
 # System Configuration
-DEBUG_MODE = True  # Set to False when running on Raspberry Pi
+DEBUG_MODE = False  # Set to False when running on Raspberry Pi
 MOCK_DISTANCE_CM = 200  # Constant distance for debugging
 
 # GPIO Configuration
@@ -12,7 +12,7 @@ DISTANCE_THRESHOLD_CM = 400  # Alert when objects are closer than this
 
 # Object Detection Configuration
 ONNX_MODEL_PATH = "best.onnx"
-CONFIDENCE_THRESHOLD = 0.4
+CONFIDENCE_THRESHOLD = 0.5
 INFERENCE_SIZE = 640
 PROCESS_EVERY_N_FRAMES = 2
 
@@ -29,3 +29,6 @@ ESPEAK_SPEED = "150"
 # Display Configuration
 SHOW_FPS = True
 FPS_UPDATE_INTERVAL = 1.0  # seconds
+
+# Show Bounding Boxes
+SHOW_BBOXES = False  
