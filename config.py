@@ -8,11 +8,11 @@ GPIO_ECHO = 15
 
 # Distance Sensor Configuration
 DISTANCE_TIMEOUT = 0.04  # 40ms timeout
-DISTANCE_THRESHOLD_CM = 400  # Alert when objects are closer than this
+DISTANCE_THRESHOLD_CM = 600  # Alert when objects are closer than this
 
 # Object Detection Configuration
 ONNX_MODEL_PATH = "best.onnx"
-CONFIDENCE_THRESHOLD = 0.4
+CONFIDENCE_THRESHOLD = 0.5
 INFERENCE_SIZE = 640
 PROCESS_EVERY_N_FRAMES = 2
 

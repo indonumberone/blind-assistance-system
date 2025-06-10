@@ -47,7 +47,6 @@ class DistanceSensor:
         Returns:
             Distance in centimeters, or None if measurement failed.
         """
-        # Send trigger pulse
         GPIO.output(self.trig_pin, False)
         time.sleep(0.05)
         
@@ -55,25 +54,21 @@ class DistanceSensor:
         time.sleep(0.00001)  # 10 microseconds
         GPIO.output(self.trig_pin, False)
         
-        # Measure echo pulse duration
         pulse_start, pulse_end = 0, 0
         timeout = time.time() + DISTANCE_TIMEOUT
         
-        # Wait for echo start
         while GPIO.input(self.echo_pin) == 0:
             pulse_start = time.time()
             if pulse_start > timeout:
                 return None
         
-        # Wait for echo end
         while GPIO.input(self.echo_pin) == 1:
             pulse_end = time.time()
             if pulse_end > timeout:
                 return None
         
-        # Calculate distance
         pulse_duration = pulse_end - pulse_start
-        distance = pulse_duration * 17150  # Speed of sound conversion
+        distance = pulse_duration * 17150  
         return round(distance, 2)
     
     def cleanup(self) -> None:

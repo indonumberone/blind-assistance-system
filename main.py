@@ -9,7 +9,7 @@ from object_detector import ObjectDetector
 from text_to_speech import TextToSpeech
 from config import (
     PROCESS_EVERY_N_FRAMES, SHOW_FPS, FPS_UPDATE_INTERVAL,
-    DISTANCE_THRESHOLD_CM, DEBUG_MODE
+    DISTANCE_THRESHOLD_CM, DEBUG_MODE,ONNX_MODEL_PATH
 )
 
 
@@ -18,7 +18,8 @@ class IuSeeApp:
     
     def __init__(self):
         self.distance_sensor = create_distance_sensor()
-        self.object_detector = ObjectDetector()
+        self.object_detector = ObjectDetector(model_path=ONNX_MODEL_PATH, src=1).start()
+        time.sleep(2.0)
         self.tts = TextToSpeech()
         
         self.frame_count = 0
@@ -62,7 +63,7 @@ class IuSeeApp:
         print(f"Distance: {distance_cm} cm")
         
         
-        if distance_cm < DISTANCE_THRESHOLD_CM:
+        if distance_cm > DISTANCE_THRESHOLD_CM:
             spoken_text = f"AWASS Ada sesuatu disdepan jarak {int(distance_cm)} sentimeter"
             self.tts.speak(spoken_text)
         elif detected_labels != self.last_spoken_labels:
@@ -73,38 +74,30 @@ class IuSeeApp:
         
     def run(self) -> None:
         """Main application loop."""
-        cap = cv2.VideoCapture(1)
-        if not cap.isOpened():
-            raise RuntimeError("Error: Cannot open webcam")
-        
         print("Mulai proses deteksi. Tekan Ctrl+C untuk keluar.")
         start_time = time.time()
         
         try:
             while True:
-                ret, frame = cap.read()
-                if not ret:
-                    print("Gagal membaca frame.")
-                    break
-                
+                frame = self.object_detector.read_frame()
+                if frame is None:
+                    time.sleep(0.001)  
+                    print("Frame kosong, melewati...")
+                    continue
+                time.sleep(0.001)
                 self.frame_count += 1
                 self._calculate_and_display_fps()
-                
-                # Skip processing if not the right frame
+                cv2.imshow("IuSee Preview", frame)
                 if not self._should_process_frame():
                     continue
-                
-                # Detect objects
                 detected_labels = self.object_detector.detect_objects(frame)
-                
-                # Handle detections
                 self._handle_detections(detected_labels)
                 
         except KeyboardInterrupt:
             print("\nDihentikan oleh user.")
         
         finally:
-            cap.release()
+            self.object_detector.stop_capture()
             self.distance_sensor.cleanup()
             total_time = time.time() - start_time
             print("Program selesai.")

@@ -3,19 +3,85 @@ import numpy as np
 import onnxruntime as ort
 from typing import List, Set, Tuple
 from config import ONNX_MODEL_PATH, CONFIDENCE_THRESHOLD, INFERENCE_SIZE, CLASS_NAMES
-
+import queue
+from threading import Thread
+import time
 
 class ObjectDetector:
     """Handler Onnx object detection"""
     
-    def __init__(self, model_path: str = ONNX_MODEL_PATH):
+    def __init__(self, model_path: str = ONNX_MODEL_PATH,src=0):
         self.model_path = model_path
         self.session = None
         self.class_names = CLASS_NAMES
         self.conf_threshold = CONFIDENCE_THRESHOLD
         self.inference_size = INFERENCE_SIZE
         self._load_model()
-    
+        self.stream = None
+        self.camera_src = src
+        self._setup_camera()
+        self.stop = False
+        self.q = queue.Queue(maxsize=2)
+        
+    def _setup_camera(self):
+        self.stream = cv2.VideoCapture(self.camera_src)
+        if not self.stream.isOpened():
+            print(f"Camera at index {self.camera_src} failed, trying 0...")
+            self.stream = cv2.VideoCapture(0)
+            if not self.stream.isOpened():
+                raise RuntimeError("No available camera.")
+    def start(self):
+        """Start capturing frames from the camera."""
+        Thread(target=self.update_queue, daemon=True).start()
+        return self
+    def update_queue(self):
+        """Continuously read frames from the camera and put them in the queue."""
+        while not self.stop:
+            if not self.q.full():
+                grabbed, frame = self.stream.read()
+                if not grabbed:
+                    self.stop = True
+                    break
+                if self.q.empty():
+                    self.q.put(frame)
+                else:
+                    try:
+                        self.q.get_nowait()
+                        self.q.put(frame)
+                    except queue.Empty:
+                        pass
+            else:
+                time.sleep(0.001)
+
+        # while not self.stop:
+        #     if not self.q.full():
+        #         grabbed, frame = self.stream.read()
+        #         if not grabbed:
+        #             self.stop = True
+        #             break
+        #         if self.q.empty():
+        #             self.q.put(frame)
+        #         else:
+        #             try:
+        #                 self.q.get_nowait()
+        #                 self.q.put(frame)
+        #             except queue.Empty:
+        #                 pass
+        #     else:
+        #         time.sleep(0.001)
+
+                
+    def read_frame(self):
+        return None if self.q.empty() else self.q.get()
+
+        # """Read a frame from the queue."""
+        # if self.q.empty():
+        #     return False, None
+        # frame = self.q.get()
+        # return True, frame
+    def stop_capture(self):
+        self.stop = True
+        self.stream.release()
     def _load_model(self) -> None:
         """Load model onnx e"""
         try:
@@ -59,10 +125,8 @@ class ObjectDetector:
         if self.session is None:
             raise RuntimeError("Model not loaded")
         
-        # Preprocess frame
         input_img = self._preprocess_frame(frame)
         
-        # Run inference
         input_name = self.session.get_inputs()[0].name
         outputs = self.session.run(None, {input_name: input_img})[0]
         
