@@ -218,6 +218,13 @@ class ObjectDetector:
         # Get frame dimensions only if we need bboxes
         if need_bboxes:
             h, w = frame.shape[:2]
+            center_x_min = int(w * 1/3)
+            center_x_max = int(w * 2/3)
+            center_y_min = int(h * 1/3)
+            center_y_max = int(h * 2/3)
+
+        
+        
         
         for det in outputs[0]:
             x1, y1, x2, y2, conf, cls_id = det
@@ -227,8 +234,7 @@ class ObjectDetector:
             
             cls_id = int(cls_id)
             if cls_id < len(self.class_names):
-                label = self.class_names[cls_id]
-                detected_labels.add(label)
+            
                 
                 # Only process bbox coordinates if needed
                 if need_bboxes:
@@ -237,8 +243,15 @@ class ObjectDetector:
                     y1 = int(y1 * h / self.inference_size)
                     x2 = int(x2 * w / self.inference_size)
                     y2 = int(y2 * h / self.inference_size)
+
+                    center_x = (x1+x2) // 2  
+                    center_y = (y1+y2) // 2  
                     
-                    bounding_boxes.append((x1, y1, x2, y2, conf, label))
+                    if (center_x_min <= center_x <= center_x_max) and (center_y_min <= center_y <= center_y_max):
+                        label = self.class_names[cls_id]
+                        detected_labels.add(label)
+                        bounding_boxes.append((x1, y1, x2, y2, conf, label))
+
         
         return detected_labels, bounding_boxes
 

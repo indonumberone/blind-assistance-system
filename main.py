@@ -63,14 +63,15 @@ class IuSeeApp:
         print(f"Distance: {distance_cm} cm")
         
         
-        if distance_cm > DISTANCE_THRESHOLD_CM:
-            spoken_text = f"AWASS Ada sesuatu disdepan jarak {int(distance_cm)} sentimeter"
-            self.tts.speak(spoken_text)
-        elif detected_labels != self.last_spoken_labels:
+        if detected_labels != self.last_spoken_labels and distance_cm < DISTANCE_THRESHOLD_CM * 2:
             self.last_spoken_labels = detected_labels
             labels_text = ', '.join(detected_labels)
             spoken_text = f"AWASS Ada {labels_text} di depan jarak {int(distance_cm)} sentimeter"
             self.tts.speak(spoken_text)
+        elif distance_cm < DISTANCE_THRESHOLD_CM:
+            spoken_text = f"AWASS Ada sesuatu disdepan jarak {int(distance_cm)} sentimeter"
+            self.tts.speak(spoken_text)
+
         
     def run(self) -> None:
         """Main application loop."""
@@ -78,6 +79,7 @@ class IuSeeApp:
         start_time = time.time()
         
         try:
+            count = 0
             while True:
                 frame = self.object_detector.read_frame()
                 if frame is None:
@@ -87,7 +89,8 @@ class IuSeeApp:
                 time.sleep(0.001)
                 self.frame_count += 1
                 self._calculate_and_display_fps()
-
+                if count > 3:
+                    self.last_spoken_labels.clear()
                 if self._should_process_frame():
                     if SHOW_BBOXES:
                         detected_labels, bounding_boxes = self.object_detector.detect_objects_optimized(frame, need_bboxes=SHOW_BBOXES)
@@ -97,6 +100,7 @@ class IuSeeApp:
                     else:
                         detected_labels = self.object_detector.detect_objects_labels_only(frame)
                         self._handle_detections(detected_labels)
+                count += 1
                 
                 # Check for 'q' key press to exit
                 if cv2.waitKey(1) & 0xFF == ord('q'):
