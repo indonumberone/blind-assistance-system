@@ -95,13 +95,14 @@ class IuSeeApp:
                     self.last_spoken_labels.clear()
                 if self._should_process_frame():
                     if SHOW_BBOXES:
-                        detected_labels = self.object_detector.detect_objects_labels_only(frame)
+                        detected_labels, bounding_boxes = self.object_detector.detect_objects_optimized(frame, need_bboxes=SHOW_BBOXES)
                         self._handle_detections(detected_labels)
-
+                        frame_with_boxes = self.object_detector.draw_bounding_boxes(frame, bounding_boxes)
+                        cv2.imshow("IuSee Preview", frame_with_boxes)
                     else:
                         detected_labels, bounding_boxes = self.object_detector.detect_objects_optimized(frame, need_bboxes=SHOW_BBOXES)
                         self._handle_detections(detected_labels)
-                        # frame_with_boxes = self.object_detector.draw_bounding_boxes(frame, bounding_boxes)
+                        frame_with_boxes = self.object_detector.draw_bounding_boxes(frame, bounding_boxes)
                         # cv2.imshow("IuSee Preview", frame_with_boxes)
                 count += 1
                 
