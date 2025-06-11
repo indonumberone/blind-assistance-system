@@ -70,7 +70,7 @@ class IuSeeApp:
             print(spoken_text)
             self.tts.speak(spoken_text)
         elif distance_cm < DISTANCE_THRESHOLD_CM:
-            spoken_text = f"AWASS Ada sesuatu di depan jarak {int(distance_cm)} sentimeter"
+            spoken_text = f"AWASS Ada sesuatu disdepan jarak {int(distance_cm)} sentimeter"
             print(spoken_text)
             self.tts.speak(spoken_text)
 
@@ -97,11 +97,12 @@ class IuSeeApp:
                     if SHOW_BBOXES:
                         detected_labels = self.object_detector.detect_objects_labels_only(frame)
                         self._handle_detections(detected_labels)
-                        # frame_with_boxes = self.object_detector.draw_bounding_boxes(frame, bounding_boxes)
-                        # cv2.imshow("IuSee Preview", frame_with_boxes)
+
                     else:
                         detected_labels, bounding_boxes = self.object_detector.detect_objects_optimized(frame, need_bboxes=SHOW_BBOXES)
                         self._handle_detections(detected_labels)
+                        # frame_with_boxes = self.object_detector.draw_bounding_boxes(frame, bounding_boxes)
+                        # cv2.imshow("IuSee Preview", frame_with_boxes)
                 count += 1
                 
                 # Check for 'q' key press to exit
