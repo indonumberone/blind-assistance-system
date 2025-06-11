@@ -1,0 +1,16 @@
+[Unit]
+Description=Run main.py from venv at boot
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/clone/blind-assistance-system
+ExecStart=/home/pi/clone/blind-assistance-system/.venv/bin/python main.py
+Restart=always
+User=pi
+Environment="PYTHONUNBUFFERED=1"
+StandardOutput=append:/home/pi/logs/iusee.log
+StandardError=append:/home/pi/logs/iusee.log
+
+[Install]
+WantedBy=multi-user.target

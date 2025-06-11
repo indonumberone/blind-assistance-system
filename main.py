@@ -67,9 +67,11 @@ class IuSeeApp:
             self.last_spoken_labels = detected_labels
             labels_text = ', '.join(detected_labels)
             spoken_text = f"AWASS Ada {labels_text} di depan jarak {int(distance_cm)} sentimeter"
+            print(spoken_text)
             self.tts.speak(spoken_text)
         elif distance_cm < DISTANCE_THRESHOLD_CM:
             spoken_text = f"AWASS Ada sesuatu disdepan jarak {int(distance_cm)} sentimeter"
+            print(spoken_text)
             self.tts.speak(spoken_text)
 
         
