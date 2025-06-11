@@ -1,0 +1,15 @@
+[Unit]
+Description=Run main.py from venv at boot
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/clone/blind-assistance-system
+ExecStart=/home/pi/clone/blind-assistance-system/.venv/bin/python main.py
+Restart=always
+User=pi
+Environment="PATH=/home/pi/clone/blind-assistance-system/.venv/bin/activate"
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
