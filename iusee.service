@@ -8,7 +8,6 @@ WorkingDirectory=/home/pi/clone/blind-assistance-system
 ExecStart=/home/pi/clone/blind-assistance-system/.venv/bin/python main.py
 Restart=always
 User=pi
-Environment="PATH=/home/pi/clone/blind-assistance-system/.venv/bin"
 Environment="PYTHONUNBUFFERED=1"
 StandardOutput=append:/home/pi/logs/iusee.log
 StandardError=append:/home/pi/logs/iusee.log
