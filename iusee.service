@@ -10,6 +10,8 @@ Restart=always
 User=pi
 Environment="PATH=/home/pi/clone/blind-assistance-system/.venv/bin/activate"
 Environment="PYTHONUNBUFFERED=1"
+StandardOutput=append:/home/pi/logs/iusee.log
+StandardError=append:/home/pi/logs/iusee.log
 
 [Install]
 WantedBy=multi-user.target
