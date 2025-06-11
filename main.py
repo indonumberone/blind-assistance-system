@@ -70,7 +70,7 @@ class IuSeeApp:
             print(spoken_text)
             self.tts.speak(spoken_text)
         elif distance_cm < DISTANCE_THRESHOLD_CM:
-            spoken_text = f"AWASS Ada sesuatu disdepan jarak {int(distance_cm)} sentimeter"
+            spoken_text = f"AWASS Ada sesuatu di depan jarak {int(distance_cm)} sentimeter"
             print(spoken_text)
             self.tts.speak(spoken_text)
 
