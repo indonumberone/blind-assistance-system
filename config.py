@@ -1,5 +1,5 @@
 # System Configuration
-DEBUG_MODE = False  # Set to False when running on Raspberry Pi
+DEBUG_MODE = True  # Set to False when running on Raspberry Pi
 MOCK_DISTANCE_CM = 200  # Constant distance for debugging
 
 # GPIO Configuration
